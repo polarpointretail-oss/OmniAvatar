@@ -1,0 +1,37 @@
+# Optimized configuration for fast inference
+dtype: "bf16"
+text_encoder_path: pretrained_models/Wan2.1-T2V-14B/models_t5_umt5-xxl-enc-bf16.pth
+image_encoder_path: None
+dit_path: pretrained_models/Wan2.1-T2V-14B/diffusion_pytorch_model-00001-of-00006.safetensors,pretrained_models/Wan2.1-T2V-14B/diffusion_pytorch_model-00002-of-00006.safetensors,pretrained_models/Wan2.1-T2V-14B/diffusion_pytorch_model-00003-of-00006.safetensors,pretrained_models/Wan2.1-T2V-14B/diffusion_pytorch_model-00004-of-00006.safetensors,pretrained_models/Wan2.1-T2V-14B/diffusion_pytorch_model-00005-of-00006.safetensors,pretrained_models/Wan2.1-T2V-14B/diffusion_pytorch_model-00006-of-00006.safetensors
+vae_path: pretrained_models/Wan2.1-T2V-14B/Wan2.1_VAE.pth
+wav2vec_path: pretrained_models/wav2vec2-base-960h
+exp_path: pretrained_models/OmniAvatar-14B
+num_persistent_param_in_dit: 100000000  # Reduce VRAM usage and improve cache efficiency
+
+reload_cfg: True
+sp_size: 1
+
+# Optimized data parameters for speed
+seed: 42
+image_sizes_720: [[400, 720], 
+             [720, 720], 
+             [720, 400]]
+image_sizes_1280: [
+             [720, 720], 
+             [528, 960],
+             [960, 528],
+             [720, 1280],
+             [1280, 720]]
+max_hw: 720 # Keep at 480p for speed
+max_tokens: 20000  # Reduced from 30000 for faster processing
+seq_len: 150       # Reduced from 200 for shorter sequences initially
+overlap_frame: 9   # Reduced from 13 (must be 1 + 4*n, so 9 = 1 + 4*2)
+guidance_scale: 3.5  # Slightly reduced from 4.5 for faster convergence
+audio_scale: 
+num_steps: 20       # Drastically reduced from 50 steps for 2.5x speed improvement
+fps: 25
+sample_rate: 16000
+negative_prompt: "Vivid color tones, background/camera moving quickly, screen switching, subtitles and special effects, mutation, overexposed, static, blurred details, subtitles, style, work, painting, image, still, overall grayish, worst quality, low quality, JPEG compression residue, ugly, incomplete, extra fingers, poorly drawn hands, poorly drawn face, deformed, disfigured, malformed limbs, fingers merging, motionless image, chaotic background, three legs, crowded background with many people, walking backward"
+silence_duration_s: 0.1  # Reduced from 0.3
+use_fsdp: False
+tea_cache_l1_thresh: 0.14 # Enable TeaCache for significant speedup (0.14 is suggested value)
