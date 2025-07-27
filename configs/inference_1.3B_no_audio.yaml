@@ -1,0 +1,31 @@
+# Ultra-fast configuration using 1.3B model (no audio)
+dtype: "bf16"
+text_encoder_path: pretrained_models/Wan2.1-T2V-1.3B/models_t5_umt5-xxl-enc-bf16.pth
+image_encoder_path: None
+dit_path: pretrained_models/Wan2.1-T2V-1.3B/diffusion_pytorch_model.safetensors
+vae_path: pretrained_models/Wan2.1-T2V-1.3B/Wan2.1_VAE.pth
+wav2vec_path: pretrained_models/wav2vec2-base-960h
+exp_path: pretrained_models/OmniAvatar-1.3B
+num_persistent_param_in_dit: 50000000
+
+reload_cfg: True
+sp_size: 1
+
+# Data parameters
+seed: 42
+image_sizes_720: [[400, 720], [720, 720], [720, 400]]
+image_sizes_1280: [[720, 720], [528, 960], [960, 528], [720, 1280], [1280, 720]]
+max_hw: 720
+max_tokens: 15000
+seq_len: 100
+overlap_frame: 5
+guidance_scale: 3.0
+audio_scale: None
+num_steps: 15  # Ultra-fast: reduced from 50+ to 15
+fps: 25
+sample_rate: 16000
+negative_prompt: "Vivid color tones, background/camera moving quickly, screen switching, subtitles and special effects, mutation, overexposed, static, blurred details, subtitles, style, work, painting, image, still, overall grayish, worst quality, low quality, JPEG compression residue, ugly, incomplete, extra fingers, poorly drawn hands, poorly drawn face, deformed, disfigured, malformed limbs, fingers merging, motionless image, chaotic background, three legs, crowded background with many people, walking backward"
+silence_duration_s: 0.05
+use_fsdp: False
+tea_cache_l1_thresh: 0.14  # Enable TeaCache for memory efficiency
+use_audio: False  # Disable audio processing to avoid SDPA issues 
