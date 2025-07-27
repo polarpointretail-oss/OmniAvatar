@@ -7,6 +7,7 @@ vae_path: pretrained_models/Wan2.1-T2V-1.3B/Wan2.1_VAE.pth
 wav2vec_path: pretrained_models/wav2vec2-base-960h
 exp_path: pretrained_models/OmniAvatar-1.3B
 num_persistent_param_in_dit: 50000000  # Smaller model needs less VRAM management
+train_architecture: "full"  # Use full model, not LoRA
 
 reload_cfg: True
 sp_size: 1
