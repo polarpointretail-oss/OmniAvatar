@@ -1,10 +1,10 @@
 # Ultra-fast configuration using 1.3B model (only pytorch_model.pt available)
 dtype: "bf16"
 # 1.3B model only has pytorch_model.pt - no separate components
-text_encoder_path: None
-image_encoder_path: None
-dit_path: None
-vae_path: None
+text_encoder_path: 
+image_encoder_path: 
+dit_path: 
+vae_path: 
 wav2vec_path: pretrained_models/wav2vec2-base-960h
 exp_path: pretrained_models/OmniAvatar-1.3B
 num_persistent_param_in_dit: 50000000
