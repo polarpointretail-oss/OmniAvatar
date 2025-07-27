@@ -65,10 +65,7 @@ class Wav2VecModel(Wav2Vec2Model):
         Returns:
             The output of the Wav2Vec model.
         """
-        # Force eager attention implementation to avoid SDPA issues
-        if hasattr(self.config, 'attn_implementation') and self.config.attn_implementation == 'sdpa':
-            self.config.attn_implementation = 'eager'
-        self.config.output_attentions = True
+        self.config.output_attentions = False
 
         output_hidden_states = (
             output_hidden_states if output_hidden_states is not None else self.config.output_hidden_states
@@ -156,9 +153,6 @@ class Wav2VecModel(Wav2Vec2Model):
         Returns:
             The encoded output features.
         """
-        # Force eager attention implementation to avoid SDPA issues
-        if hasattr(self.config, 'attn_implementation') and self.config.attn_implementation == 'sdpa':
-            self.config.attn_implementation = 'eager'
         self.config.output_attentions = True
 
         output_hidden_states = (

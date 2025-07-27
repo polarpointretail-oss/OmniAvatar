@@ -254,11 +254,13 @@ class WanInferencePipeline(nn.Module):
                 audio_len = audio_len + ((L - fixed_frame) - (audio_len - (L - first_fixed_frame)) % (L - fixed_frame))
             input_values = F.pad(input_values, (0, audio_len * int(self.args.sample_rate / self.args.fps) - input_values.shape[1]), mode='constant', value=0)
             with torch.no_grad():
-                # Temporarily disable audio processing to avoid SDPA issues
-                print("DEBUG: Skipping audio processing to avoid SDPA issues")
-                audio_embeddings = None
+                hidden_states = self.audio_encoder(input_values, seq_len=audio_len, output_hidden_states=True)
+                audio_embeddings = hidden_states.last_hidden_state
+                for mid_hidden_states in hidden_states.hidden_states:
+                    audio_embeddings = torch.cat((audio_embeddings, mid_hidden_states), -1)
             seq_len = audio_len
-            audio_prefix = None
+            audio_embeddings = audio_embeddings.squeeze(0)
+            audio_prefix = torch.zeros_like(audio_embeddings[:first_fixed_frame])
         else:
             audio_embeddings = None
 
