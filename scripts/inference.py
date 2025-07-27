@@ -26,6 +26,7 @@ import torchvision.transforms as transforms
 import torch.nn.functional as F
 from OmniAvatar.utils.audio_preprocess import add_silence_to_audio_ffmpeg
 from OmniAvatar.distributed.fsdp import shard_model
+import time
 
 def set_seed(seed: int = 42):
     random.seed(seed)
@@ -328,7 +329,10 @@ def main():
     seq_len = args.seq_len
     date_name = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
     # Text-to-video
+    print("[Profiler] Loading model...")
+    t0 = time.time()
     inferpipe = WanInferencePipeline(args)
+    print(f"[Profiler] Model loaded in {time.time() - t0:.2f} seconds.")
     if args.sp_size > 1:
         date_name = inferpipe.pipe.sp_group.broadcast_object_list([date_name])
         date_name = date_name[0]
@@ -366,15 +370,18 @@ def main():
             if args.silence_duration_s > 0:
                 add_silence_to_audio_ffmpeg(audio_path, input_audio_path, args.silence_duration_s)
         dist.barrier()
+        print(f"[Profiler] Starting inference for sample {idx}...")
+        t1 = time.time()
         video = inferpipe(
             prompt=text,
             image_path=image_path,
             audio_path=input_audio_path,
             seq_len=seq_len
         )
+        print(f"[Profiler] Inference for sample {idx} took {time.time() - t1:.2f} seconds.")
         tmp2_audio_path = os.path.join(audio_dir, f"audio_out_{idx:03d}.wav") # 因为第一帧是参考帧，因此需要往前1/25秒
         prompt_path = os.path.join(prompt_dir, f"prompt_{idx:03d}.txt") 
-        
+        t2 = time.time()
         if dist.get_rank() == 0:
             add_silence_to_audio_ffmpeg(audio_path, tmp2_audio_path, 1.0 / args.fps + args.silence_duration_s)
             save_video_as_grid_and_mp4(video, 
@@ -385,6 +392,8 @@ def main():
                                     audio_path=tmp2_audio_path if args.use_audio else None, 
                                     prefix=f'result_{idx:03d}')
         dist.barrier()
+        if dist.get_rank() == 0:
+            print(f"[Profiler] Saving/output for sample {idx} took {time.time() - t2:.2f} seconds.")
 
 class NoPrint:
     def write(self, x):
