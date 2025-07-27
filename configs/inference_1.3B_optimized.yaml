@@ -1,13 +1,14 @@
-# Ultra-fast configuration using 14B model (1.3B model is incomplete)
+# Ultra-fast configuration using 1.3B model (only pytorch_model.pt available)
 dtype: "bf16"
-text_encoder_path: pretrained_models/Wan2.1-T2V-14B/models_t5_umt5-xxl-enc-bf16.pth
+# 1.3B model only has pytorch_model.pt - no separate components
+text_encoder_path: None
 image_encoder_path: None
-dit_path: pretrained_models/Wan2.1-T2V-14B/diffusion_pytorch_model-00001-of-00006.safetensors,pretrained_models/Wan2.1-T2V-14B/diffusion_pytorch_model-00002-of-00006.safetensors,pretrained_models/Wan2.1-T2V-14B/diffusion_pytorch_model-00003-of-00006.safetensors,pretrained_models/Wan2.1-T2V-14B/diffusion_pytorch_model-00004-of-00006.safetensors,pretrained_models/Wan2.1-T2V-14B/diffusion_pytorch_model-00005-of-00006.safetensors,pretrained_models/Wan2.1-T2V-14B/diffusion_pytorch_model-00006-of-00006.safetensors
-vae_path: pretrained_models/Wan2.1-T2V-14B/Wan2.1_VAE.pth
+dit_path: None
+vae_path: None
 wav2vec_path: pretrained_models/wav2vec2-base-960h
-exp_path: pretrained_models/OmniAvatar-14B
-num_persistent_param_in_dit: 50000000  # Smaller model needs less VRAM management
-train_architecture: "full"  # Use full model, not LoRA
+exp_path: pretrained_models/OmniAvatar-1.3B
+num_persistent_param_in_dit: 50000000
+train_architecture: "full"
 
 reload_cfg: True
 sp_size: 1
@@ -24,15 +25,15 @@ image_sizes_1280: [
              [720, 1280],
              [1280, 720]]
 max_hw: 720 # 480p for maximum speed
-max_tokens: 15000  # Further reduced for speed
-seq_len: 100       # Shorter sequences for faster processing
-overlap_frame: 5   # Minimum overlap (1 + 4*1)
-guidance_scale: 3.0  # Lower guidance scale for faster convergence
+max_tokens: 15000
+seq_len: 100
+overlap_frame: 5
+guidance_scale: 3.0
 audio_scale: 
-num_steps: 15       # Aggressive reduction - 3.3x faster than original
+num_steps: 15
 fps: 25
 sample_rate: 16000
 negative_prompt: "Vivid color tones, background/camera moving quickly, screen switching, subtitles and special effects, mutation, overexposed, static, blurred details, subtitles, style, work, painting, image, still, overall grayish, worst quality, low quality, JPEG compression residue, ugly, incomplete, extra fingers, poorly drawn hands, poorly drawn face, deformed, disfigured, malformed limbs, fingers merging, motionless image, chaotic background, three legs, crowded background with many people, walking backward"
-silence_duration_s: 0.05  # Minimal silence
+silence_duration_s: 0.05
 use_fsdp: False
-tea_cache_l1_thresh: 0.14 # Enable TeaCache for speed 
+tea_cache_l1_thresh: 0.14 

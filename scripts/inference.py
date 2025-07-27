@@ -136,15 +136,24 @@ class WanInferencePipeline(nn.Module):
 
         # Load models
         model_manager = ModelManager(device="cpu", infer=True)
-        model_manager.load_models(
-            [
-                args.dit_path.split(","),
-                args.text_encoder_path,
-                args.vae_path
-            ],
-            torch_dtype=self.dtype, # You can set `torch_dtype=torch.bfloat16` to disable FP8 quantization.
-            device='cpu',
-        )
+        
+        # Filter out None paths and handle empty lists
+        model_paths = []
+        if args.dit_path is not None:
+            model_paths.append(args.dit_path.split(","))
+        if args.text_encoder_path is not None:
+            model_paths.append(args.text_encoder_path)
+        if args.vae_path is not None:
+            model_paths.append(args.vae_path)
+            
+        if model_paths:
+            model_manager.load_models(
+                model_paths,
+                torch_dtype=self.dtype, # You can set `torch_dtype=torch.bfloat16` to disable FP8 quantization.
+                device='cpu',
+            )
+        else:
+            print("No separate model components to load - will use checkpoint only")
 
         pipe = WanVideoPipeline.from_model_manager(model_manager, 
                                                 torch_dtype=self.dtype, 
