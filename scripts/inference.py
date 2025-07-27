@@ -2,6 +2,11 @@ import subprocess
 import os, sys
 from glob import glob
 from datetime import datetime
+
+# Force eager attention implementation to avoid SDPA issues
+os.environ['TORCH_SDPA_BACKEND'] = 'eager'
+os.environ['TRANSFORMERS_ATTN_IMPLEMENTATION'] = 'eager'
+
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 import math
 import random
