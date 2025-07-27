@@ -68,7 +68,8 @@ def parse_args():
     args.device = f'cuda:{args.local_rank}'
     args.num_nodes = int(os.getenv("NNODES", "1"))
     debug = args.debug
-    if not os.path.exists(args.exp_path):
+    # Only add checkpoints/ prefix if the path doesn't exist and it's not already a full path
+    if not os.path.exists(args.exp_path) and not args.exp_path.startswith('pretrained_models/'):
         args.exp_path = f'checkpoints/{args.exp_path}'
 
     if hasattr(args, 'reload_cfg') and args.reload_cfg:
