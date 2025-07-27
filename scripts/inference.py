@@ -139,11 +139,11 @@ class WanInferencePipeline(nn.Module):
         
         # Filter out None paths and handle empty lists
         model_paths = []
-        if args.dit_path is not None:
+        if args.dit_path is not None and args.dit_path.strip():
             model_paths.append(args.dit_path.split(","))
-        if args.text_encoder_path is not None:
+        if args.text_encoder_path is not None and args.text_encoder_path.strip():
             model_paths.append(args.text_encoder_path)
-        if args.vae_path is not None:
+        if args.vae_path is not None and args.vae_path.strip():
             model_paths.append(args.vae_path)
             
         if model_paths:

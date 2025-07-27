@@ -9,6 +9,9 @@ wav2vec_path: pretrained_models/wav2vec2-base-960h
 exp_path: pretrained_models/OmniAvatar-1.3B
 num_persistent_param_in_dit: 50000000
 train_architecture: "full"
+use_audio: True
+i2v: False
+random_prefix_frames: False
 
 reload_cfg: True
 sp_size: 1
