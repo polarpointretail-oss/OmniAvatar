@@ -13,6 +13,7 @@ Functions:
     linear_interpolation: Interpolates the features based on the sequence length.
 """
 
+import torch
 import torch.nn.functional as F
 from transformers import Wav2Vec2Model
 from transformers.modeling_outputs import BaseModelOutput

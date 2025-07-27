@@ -120,11 +120,17 @@ class WanInferencePipeline(nn.Module):
         )
         torch.cuda.set_device(dist.get_rank())
         ckpt_path = f'{args.exp_path}/pytorch_model.pt'
-        assert os.path.exists(ckpt_path), f"pytorch_model.pt not found in {args.exp_path}"
-        if args.train_architecture == 'lora':
-            args.pretrained_lora_path = pretrained_lora_path = ckpt_path
+        
+        # Check if checkpoint exists - if not, we'll skip loading it (for 1.3B model)
+        if os.path.exists(ckpt_path):
+            if args.train_architecture == 'lora':
+                args.pretrained_lora_path = pretrained_lora_path = ckpt_path
+            else:
+                resume_path = ckpt_path
+            load_checkpoint = True
         else:
-            resume_path = ckpt_path
+            print(f"Warning: pytorch_model.pt not found in {args.exp_path}, skipping checkpoint loading")
+            load_checkpoint = False
         
         self.step = 0
 
@@ -145,19 +151,22 @@ class WanInferencePipeline(nn.Module):
                                                 device=f"cuda:{dist.get_rank()}", 
                                                 use_usp=True if args.sp_size > 1 else False,
                                                 infer=True)
-        if args.train_architecture == "lora":
-            print(f'Use LoRA: lora rank: {args.lora_rank}, lora alpha: {args.lora_alpha}')
-            self.add_lora_to_model(
-                    pipe.denoising_model(),
-                    lora_rank=args.lora_rank,
-                    lora_alpha=args.lora_alpha,
-                    lora_target_modules=args.lora_target_modules,
-                    init_lora_weights=args.init_lora_weights,
-                    pretrained_lora_path=pretrained_lora_path,
-                )
+        if load_checkpoint:
+            if args.train_architecture == "lora":
+                print(f'Use LoRA: lora rank: {args.lora_rank}, lora alpha: {args.lora_alpha}')
+                self.add_lora_to_model(
+                        pipe.denoising_model(),
+                        lora_rank=args.lora_rank,
+                        lora_alpha=args.lora_alpha,
+                        lora_target_modules=args.lora_target_modules,
+                        init_lora_weights=args.init_lora_weights,
+                        pretrained_lora_path=pretrained_lora_path,
+                    )
+            else:
+                missing_keys, unexpected_keys = pipe.denoising_model().load_state_dict(load_state_dict(resume_path), strict=True)
+                print(f"load from {resume_path}, {len(missing_keys)} missing keys, {len(unexpected_keys)} unexpected keys")
         else:
-            missing_keys, unexpected_keys = pipe.denoising_model().load_state_dict(load_state_dict(resume_path), strict=True)
-            print(f"load from {resume_path}, {len(missing_keys)} missing keys, {len(unexpected_keys)} unexpected keys")
+            print("Skipping checkpoint loading - using pre-loaded model weights")
         pipe.requires_grad_(False)
         pipe.eval()
         pipe.enable_vram_management(num_persistent_param_in_dit=args.num_persistent_param_in_dit) # You can set `num_persistent_param_in_dit` to a small number to reduce VRAM required. 

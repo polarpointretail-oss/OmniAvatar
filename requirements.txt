@@ -7,3 +7,8 @@ numpy==1.26.4
 xfuser==0.4.1
 ftfy
 einops
+safetensors
+Pillow
+torchvision
+imageio
+soundfile
